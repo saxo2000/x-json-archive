@@ -1,0 +1,17 @@
+{
+  "name": "X JSON Archive",
+  "short_name": "X Archive",
+  "description": "XのJSONアーカイブを端末内だけで読み込み・検索・表示するビューア",
+  "lang": "ja",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#181716",
+  "theme_color": "#181716",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
