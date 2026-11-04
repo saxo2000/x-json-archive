@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#181716">
+<title>X JSON Archive</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{
+  --bg:#181716; --surface:#21201e; --surface2:#2a2826; --line:#35332f;
+  --text:#ebe7e2; --muted:#a29b93; --accent:#ff8a4c; --link:#6cb6ff;
+  --danger:#ff6b6b; --img-bg:#111;
+}
+@media (prefers-color-scheme: light){
+  :root{--bg:#f5f3f0; --surface:#fff; --surface2:#f0ede9; --line:#ddd8d1; --text:#1d1c1a; --muted:#6c6760; --accent:#d2602a; --link:#1a63b5; --img-bg:#eceae6;}
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+html{scroll-padding-top:96px}
+.app{display:flex;flex-direction:column;min-height:100dvh}
+header.top{padding:calc(env(safe-area-inset-top) + 6px) 8px 0;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:10}
+.topline{display:flex;align-items:center;gap:6px;margin-bottom:6px;min-width:0}
+h1{font-size:13px;margin:0;font-weight:600;display:flex;align-items:center;gap:5px;white-space:nowrap;min-width:0}
+h1 .badge{font-size:10px;font-weight:500;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:0 6px}
+.topline .meta{flex:1 1 auto;min-width:0;margin:0;text-align:right;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row{display:flex;gap:5px;margin-bottom:6px;align-items:center;min-width:0}
+.row>*{flex:0 0 auto}
+.searchwrap{position:relative;flex:1 1 auto;min-width:0;display:flex}
+input[type=search]{flex:1 1 auto;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 30px 7px 10px;outline:none;font-size:14px}
+input[type=search]:focus{border-color:var(--accent)}
+select,button.btn{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12px;white-space:nowrap;min-height:32px}
+button.btn:active{background:var(--surface2)}
+button.primary{border-color:var(--accent);color:var(--accent)}
+button.xbtn{width:26px;height:26px;font-size:14px;border-radius:7px;flex:0 0 auto}
+button.icon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;font-size:15px;line-height:1;border-radius:8px;background:var(--surface);border:1px solid var(--line)}
+#clearQ{position:absolute;right:2px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--muted);font-size:16px;width:28px;height:28px;padding:0;display:none}
+#q:not(:placeholder-shown)~#clearQ{display:block}
+main{flex:1;padding:6px 6px 80px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 9px;margin-bottom:6px}
+.card header{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;margin-bottom:4px;font-size:12px}
+.uname{color:var(--accent);font-weight:600;word-break:break-all}
+.time{color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.ilink{color:var(--link);text-decoration:none;font-size:11px;margin-left:auto}
+.ilink:active{opacity:.7}
+.text{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere}
+.text .hit{background:#ffe14d;color:#1a1600;border-radius:2px;padding:0 1px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.extras{margin-top:6px;display:flex;flex-direction:column;gap:6px}
+.avatars{display:flex;flex-wrap:wrap;gap:4px}
+.avatar{width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--img-bg);border:1px solid var(--line);display:block;flex:0 0 auto}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar.broken{display:none}
+.media{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+.media.single{grid-template-columns:1fr}
+.media[hidden]{display:none}
+.thumb{position:relative;display:block;border-radius:8px;overflow:hidden;background:var(--img-bg);aspect-ratio:1;border:1px solid var(--line)}
+.media.single .thumb{aspect-ratio:auto}
+.media.single .thumb img{object-fit:contain;max-height:min(58vh,460px);width:auto;margin:0 auto}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s}
+.thumb img.ok{opacity:1}
+.thumb.static::after{content:none}
+.thumb .fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--muted);text-decoration:none;text-align:center;padding:6px}
+.thumb .fallback span.icon{font-size:20px;opacity:.7}
+.more{display:flex;justify-content:center;gap:8px;margin:14px 0 6px}
+.more button{padding:11px 18px;font-size:14px;border-radius:11px}
+.empty{text-align:center;color:var(--muted);padding:48px 20px}
+.drop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:50;font-size:18px;font-weight:600}
+.drop.on{display:flex}
+details.keys{position:relative}
+details.keys>summary{display:none}
+details.keys .panel{position:absolute;left:0;right:0;top:4px;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--muted);z-index:20;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+details.keys summary{cursor:pointer}
+details.keys table{border-collapse:collapse;margin-top:6px}
+details.keys td,details.keys th{border:1px solid var(--line);padding:2px 6px;text-align:left;font-weight:normal}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translateX(-50%);background:var(--surface2);border:1px solid var(--line);color:var(--text);padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:88vw;text-align:center;z-index:60}
+#toast.on{opacity:1}
+#toast.err{border-color:var(--danger);color:var(--danger)}
+#prog{position:fixed;left:0;top:0;height:2px;background:var(--accent);width:0;transition:width .15s;z-index:70}
+.hidden{display:none!important}
+@media (min-width:720px){ main{max-width:760px;margin:0 auto;width:100%} header.top{max-width:760px;margin:0 auto;width:100%} }
+</style>
+</head>
+<body>
+<div id="prog" class="hidden"></div>
+<div class="app">
+  <header class="top">
+    <div class="topline">
+      <button class="icon xbtn" id="topClear" type="button" title="検索・絞り込みをクリア" aria-label="検索・絞り込みをクリア">↺</button>
+      <h1>🧊 X JSON Archive <span class="badge hidden" id="srcBadge" title="データは端末内でのみ処理されます">local</span></h1>
+      <div class="meta" id="meta">JSONファイルを選ぶと端末内で表示します</div>
+    </div>
+    <div class="row">
+      <div class="searchwrap">
+        <input id="q" type="search" enterkeyhint="search" placeholder="本文・ユーザー名・日付・IDで検索" autocomplete="off" spellcheck="false">
+        <button id="clearQ" type="button" title="検索をクリア" aria-label="検索をクリア">✕</button>
+      </div>
+    </div>
+    <div class="row">
+      <select id="sort" title="並び順">
+        <option value="new">新しい順</option>
+        <option value="old">古い順</option>
+        <option value="user">ユーザー名順</option>
+        <option value="media">画像あり先</option>
+      </select>
+      <select id="from" title="投稿者の絞り込み"><option value="">全ユーザー</option></select>
+      <button class="icon" id="keysBtn" type="button" title="書式ヘルプ" aria-label="書式ヘルプ">i</button>
+      <button class="btn primary" id="openBtn" type="button" style="margin-left:auto">開く</button>
+      <button class="btn hidden" id="wideBtn" type="button" title="全文検索インデックスを構築">全文検索を有効化</button>
+      <input id="file" type="file" accept=".json,.jsonl,.ndjson,application/json,text/plain" multiple class="hidden">
+    </div>
+    <details class="keys" id="keysBox">
+      <summary></summary>
+      <div class="panel">
+        <p id="keysHelp">JSONを開くと、認識したキー名をここに表示します。</p>
+        <table id="keysTable"></table>
+      </div>
+    </details>
+  </header>
+  <main id="list" aria-live="polite"></main>
+</div>
+<div class="drop" id="drop">JSONをここにドロップ</div>
+<div id="toast" role="status"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
